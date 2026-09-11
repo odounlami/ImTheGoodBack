@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -29,8 +30,8 @@ export class AuthService {
         email,
         passwordHash,
         name: dto.name.trim(),
-        whatsapp: dto.whatsapp.trim(),
-        bio: dto.bio.trim(),
+        whatsapp: dto.whatsapp?.trim() || null,
+        bio: dto.bio?.trim() || null,
         slug,
       },
     });
@@ -48,6 +49,24 @@ export class AuthService {
     const user = await this.validateUser(dto.email, dto.password);
     if (!user) throw new UnauthorizedException('E-mail ou mot de passe incorrect.');
     return this.authResponse(user.id, user.email, user.slug);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('Utilisateur non authentifié.');
+
+    const isCurrentPasswordValid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('Mot de passe actuel incorrect.');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    return { message: 'Mot de passe modifié avec succès.' };
   }
 
   private async authResponse(id: string, email: string, slug: string) {
