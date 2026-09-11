@@ -10,6 +10,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://iamthegood.vercel.app',
+      'https://confiance.v0.build',
       'http://localhost:3000',
       'http://127.0.0.1:3000',
     ],
