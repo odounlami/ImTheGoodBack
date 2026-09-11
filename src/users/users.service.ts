@@ -23,7 +23,7 @@ export class UsersService {
             rating: true,
             comment: true,
             createdAt: true,
-            author: { select: { id: true, name: true, slug: true } },
+            author: { select: { name: true } },
           },
         },
       },
@@ -38,10 +38,21 @@ export class UsersService {
     });
 
     return {
-      ...user,
+      id: user.id,
+      name: user.name,
+      bio: user.bio,
+      whatsapp: user.whatsapp,
+      slug: user.slug,
+      createdAt: user.createdAt,
       averageRating: aggregate._avg.rating ?? 0,
       reviewCount: aggregate._count._all,
-      reviews: user.receivedReviews,
+      reviews: user.receivedReviews.map((review) => ({
+        id: review.id,
+        authorName: review.author.name,
+        rating: review.rating,
+        comment: review.comment,
+        date: review.createdAt,
+      })),
     };
   }
 
