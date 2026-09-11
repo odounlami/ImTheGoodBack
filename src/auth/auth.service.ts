@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -13,6 +13,10 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto) {
+    if (dto.password !== dto.confirmPassword) {
+      throw new BadRequestException('Les mots de passe ne correspondent pas.');
+    }
+
     const email = dto.email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) throw new ConflictException('Cette adresse e-mail est déjà utilisée.');
