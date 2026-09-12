@@ -6,6 +6,25 @@ import { CreateReviewDto } from './dto/create-review.dto';
 export class ReviewsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findMine(authorId: string, targetId: string) {
+    const review = await this.prisma.review.findUnique({
+      where: {
+        authorId_targetId: {
+          authorId,
+          targetId,
+        },
+      },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        createdAt: true,
+      },
+    });
+
+    return { review };
+  }
+
   async create(authorId: string, dto: CreateReviewDto) {
     if (authorId === dto.targetId) {
       throw new BadRequestException('Vous ne pouvez pas publier un avis sur votre propre profil.');
