@@ -34,6 +34,7 @@ model Review {
   author User @relation("AuthoredReviews", fields: [authorId], references: [id], onDelete: Cascade)
   target User @relation("ReceivedReviews", fields: [targetId], references: [id], onDelete: Cascade)
 
+  @@unique([authorId, targetId])
   @@index([targetId, createdAt])
   @@map("reviews")
 }
