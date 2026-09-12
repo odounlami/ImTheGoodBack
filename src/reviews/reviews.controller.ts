@@ -2,6 +2,7 @@ import { Body, Controller, Param, Patch, Post, Req, UseGuards } from '@nestjs/co
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
 import { ReviewsService } from './reviews.service';
 
 type AuthenticatedRequest = Request & { user: { id: string } };
@@ -18,11 +19,7 @@ export class ReviewsController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(
-    @Req() req: AuthenticatedRequest,
-    @Param('id') id: string,
-    @Body() dto: CreateReviewDto,
-  ) {
+  update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() dto: UpdateReviewDto) {
     return this.reviewsService.update(req.user.id, id, dto);
   }
 }
