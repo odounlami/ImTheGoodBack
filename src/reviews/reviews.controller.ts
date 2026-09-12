@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -10,6 +10,12 @@ type AuthenticatedRequest = Request & { user: { id: string } };
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('mine/:targetId')
+  findMine(@Req() req: AuthenticatedRequest, @Param('targetId') targetId: string) {
+    return this.reviewsService.findMine(req.user.id, targetId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post()
