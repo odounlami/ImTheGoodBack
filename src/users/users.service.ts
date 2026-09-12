@@ -21,6 +21,7 @@ export class UsersService {
           orderBy: { createdAt: 'desc' },
           select: {
             id: true,
+            authorId: true,
             rating: true,
             comment: true,
             createdAt: true,
@@ -49,6 +50,7 @@ export class UsersService {
       reviewCount: aggregate._count._all,
       reviews: user.receivedReviews.map((review) => ({
         id: review.id,
+        authorId: review.authorId,
         authorName: review.author.name,
         rating: review.rating,
         comment: review.comment,
