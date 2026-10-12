@@ -1,5 +1,5 @@
-import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -7,7 +7,9 @@ import { LoginDto } from './dto/login.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-type AuthenticatedRequest = Request & { user: { id: string } };
+type AuthenticatedRequest = Request & {
+  user: { id: string; email: string; name: string; slug: string };
+};
 
 @Controller('auth')
 @UseGuards(ThrottlerGuard)
@@ -22,6 +24,13 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @SkipThrottle()
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req: AuthenticatedRequest) {
+    return { user: req.user };
   }
 
   @UseGuards(JwtAuthGuard)
